@@ -1,13 +1,6 @@
-# Trade App – User Management & Dashboard (React + TypeScript)
+# Product App – Listing & Maintenance (React + TypeScript + Tailwind)
 
-A modern React + TypeScript application built with Vite. It provides a user management interface (list, search, filter, sort, paginate, bulk actions) and a dashboard with basic analytics. The app uses a mock API/data service, so it runs entirely in the browser with no backend required.
-
-## Highlights
-
-- No login required (authentication removed for simplicity)
-- User Management: CRUD, bulk actions, search, filter by role/status, sorting, pagination
-- Dashboard: quick stats and charts
-- Fast dev environment and lightweight state management
+Minimal product management app that satisfies the assignment requirements using React hooks and Tailwind. It includes a Product Listing page and a Product Maintenance form (create/update), plus the extra logic: quantity can be increased or decreased (min 0), and products with quantity 0 are removable.
 
 ## Tech Stack
 
@@ -15,9 +8,7 @@ A modern React + TypeScript application built with Vite. It provides a user mana
 - Vite (dev/build)
 - Tailwind CSS (styling)
 - Zustand (state management)
-- React Hook Form + Zod (forms and validation)
-- TanStack Table (data table)
-- Chart.js (charts)
+- React Hook Form + Zod (form + validation)
 - Lucide React (icons)
 
 ## Quick Start
@@ -33,92 +24,76 @@ npm install
 ```
 npm run dev
 ```
-- The console will print the local URL (e.g., http://localhost:5174/ if 5173 is in use).
+- Dev server typically runs at `http://localhost:5173/`.
 
 3) Build and preview a production build
 ```
 npm run build
 npm run preview
 ```
-- Preview runs a local server serving the dist folder.
+- Preview serves the built app at `http://localhost:4173/`.
 
-## Available Scripts
+## Routes
 
-- dev: start Vite development server
-- build: type-check and build for production
-- preview: serve the production build
-- lint: run ESLint
-- check: TypeScript type-check (no emit)
+- `/` or `/products`: Product Listing
+- `/add`: Product Maintenance (create)
+- `/:id/edit`: Product Maintenance (update)
 
-## Project Structure (simplified)
+## Features
+
+- Product Listing: shows product name and quantity, with filter, sort, and pagination.
+- Quantity controls: “− qty +” inline in the Quantity column.
+  - “−” decreases, “+” increases
+  - Clamped at 0 (never negative)
+- Remove when quantity is 0: a “Remove” button appears only when `quantity === 0`.
+- Product Maintenance form:
+  - Create new product
+  - Edit existing product by id
+  - Validation: name ≥ 2 chars, quantity ≥ 0, description ≥ 2 chars
+
+## Data Flow
+
+- Backend-first service with demo fallback:
+  - Tries `/api/products` first via `src/services/productApi.ts`.
+  - If the backend is unreachable, falls back to a mock service in `src/services/mockApi.ts`.
+- Demo persistence:
+  - Products are saved to `localStorage` under `mockProducts`.
+  - On first load, products are read from `public/products.json` or `localStorage`.
+  - Seeding ensures at least 100 products for pagination/sorting tests.
+
+## How To Use
+
+- Listing page:
+  - Use filter input to search by name/description.
+  - Click column headers to sort; change page size and navigate pages.
+  - Use “−” and “+” next to quantity to adjust; quantity stays ≥ 0.
+  - If quantity becomes 0, click “Remove” to delete the product.
+- Maintenance form:
+  - Go to `/add` to create a product.
+  - Go to `/:id/edit` to update an existing product.
+
+## Project Structure
 
 ```
-trade-app/
-├─ src/
-│  ├─ components/       # Reusable UI components
-│  ├─ pages/            # Route-level components (UserManagement, UserForm, Dashboard, etc.)
-│  ├─ services/         # Mock API and data utilities
-│  ├─ stores/           # Zustand stores (e.g., userStore)
-│  ├─ types/            # TypeScript types
-│  └─ main.tsx, App.tsx # App bootstrap and routing
-├─ public/              # Static assets (may include users.json for mock data)
-├─ index.html           # Vite HTML entry
-├─ package.json         # Scripts and dependencies
-└─ vite.config.ts       # Vite configuration
+src/
+  components/      Reusable UI components
+  pages/           ProductList, ProductMaintenance, etc.
+  services/        productApi (backend-first), mockApi (demo fallback)
+  stores/          Zustand stores (productStore)
+  types/           TypeScript types
+  main.tsx, App.tsx
+public/
+  products.json    Initial demo dataset
 ```
 
-## Configuration
+## Scripts
 
-- Default setup uses a mock API/data service and does not require environment variables.
-- If you later integrate a real API, you can use environment variables like `VITE_API_BASE_URL`. For static deployments, keep using the mock data.
+- `npm run dev`     Start dev server
+- `npm run build`   Type-check and build
+- `npm run preview` Serve built app
+- `npm run check`   TypeScript type-check
 
-## Deployment
+## Notes
 
-1) Build the app:
-```
-npm run build
-```
-2) Deploy the `dist/` folder to any static hosting provider (e.g., Vercel, Netlify, GitHub Pages, S3).
-- Optional: a `vercel.json` is included to simplify static hosting on Vercel.
-
-## Features Overview
-
-User Management
-- View users with pagination
-- Search by name/email
-- Filter by role and status
-- Sort by supported columns
-- Create, edit, delete users
-- Bulk actions (activate/deactivate/delete)
-
-Dashboard
-- Summary statistics and simple charts
-
-Order Search (Planned)
-- Designed to be added later. The UI and data layer are prepared for future extension.
-
-## Pros & Cons
-
-Pros
-- Fast development cycle with Vite (instant HMR)
-- TypeScript-first setup improves reliability and DX
-- Clear modular structure (pages, components, stores, services)
-- Lightweight state management using Zustand (simple and scalable)
-- Form handling and validation with React Hook Form + Zod
-- Tailwind CSS for rapid styling and consistent design
-- Easily deployable to static hosts; minimal configuration needed
-
-Cons
-- Mock API only; no real backend integration by default
-- Basic charting; advanced analytics may require additional setup
-- Some features (e.g., Order Search) are planned, not fully implemented
-- Limited authentication flows (intentionally simplified)
-- Requires Node 18+; older environments need upgrades
-
-## Troubleshooting
-
-- Port already in use: Vite will automatically try another port and print it in the console.
-- Node.js version issues: ensure Node 18+ is installed. If using an older version, upgrade and reinstall dependencies.
-- Build errors: run `npm run check` and `npm run lint` to spot type or lint issues.
-"# trade-app-react" 
-"# product-list-demo-react" 
+- If a backend is configured under `/api`, the app will use it.
+- If not, it uses the mock service and persists changes in the browser.
